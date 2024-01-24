@@ -42,6 +42,18 @@ esac
 # Limpiar la línea antes de imprimir la nueva ruta
 LIMPIAR_LINEA=$(tput el)
 
+#Generar un GUID para detectar estados 200 en cualquier ruta
+UUID=$(openssl rand -hex 16 | sed 's/\(..\)\(..\)\(..\)\(..\)\(..\)\(..\)\(..\)\(..\)/\1\2\3\4-\5\6-\7\8-\8\7-\6\5\4\3\2\1/')
+
+URL_COMPLETA="${URL_BASE}${UUID}"
+CODIGO_HTTP=$(curl -I -o /dev/null -w '%{http_code}' -s "${URL_COMPLETA}")
+
+if [ "$CODIGO_HTTP" = "200" ]; then
+    echo "No se puede determinar el estado 404 ya que el servidor muestra estado 200 en cualquier path"
+    echo ${URL_COMPLETA}
+    exit
+fi
+
 # Leer cada línea del archivo, asumiendo que cada línea es un nombre de carpeta
 while IFS= read -r carpeta; do
     # Guardar la posición del cursor
